@@ -1,54 +1,39 @@
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
+import os
 
-from database import Base, engine, get_db
+from database import engine, Base
+import models
 from routers import auth, properties, tasks, uploads
 from utils.pdf_report import generate_property_report
-from routers.auth import get_current_user
-import models
 
+# Initialize database
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="FixHub API")
-
-# CORS (adjust for prod)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Create FastAPI app
+app = FastAPI(
+    title="FixHub API",
+    description="Backend API for FixHub project — property and repair management system",
+    version="1.0.0"
 )
 
-# Static files (for uploaded photos & reports)
-app.mount("/static", StaticFiles(directory="backend"), name="static")
-
+# Include routers
 app.include_router(auth.router)
 app.include_router(properties.router)
 app.include_router(tasks.router)
 app.include_router(uploads.router)
 
+# --- Static file handling ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+# Create /static folder automatically (prevents Render crash)
+if not os.path.exists(STATIC_DIR):
+    os.makedirs(STATIC_DIR)
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# --- Root route ---
 @app.get("/")
 def root():
-    return {"message": "FixHub API running"}
-
-
-@app.get("/reports/property/{property_id}")
-def property_report(
-    property_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    prop = db.query(models.Property).filter(
-        models.Property.id == property_id,
-        models.Property.manager_id == current_user.id,
-    ).first()
-    if not prop:
-        raise HTTPException(status_code=404, detail="Property not found")
-
-    path = generate_property_report(property_id, db)
-    return FileResponse(path, media_type="application/pdf", filename=path.split("/")[-1])
+    return {"message": "FixHub backend is running successfully!"}
