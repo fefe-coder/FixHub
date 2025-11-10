@@ -4,8 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from .database import Base, engine, get_db
-from .routers import auth, properties, tasks, uploads
+from database import Base, engine, get_db
+from routers import auth, properties, tasks, uploads
 from .utils.pdf_report import generate_property_report
 from .routers.auth import get_current_user
 from . import models
