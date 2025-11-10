@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from database import Base, engine, get_db
 from routers import auth, properties, tasks, uploads
-from .utils.pdf_report import generate_property_report
-from .routers.auth import get_current_user
+from utils.pdf_report import generate_property_report
+from routers.auth import get_current_user
 from . import models
 
 Base.metadata.create_all(bind=engine)
