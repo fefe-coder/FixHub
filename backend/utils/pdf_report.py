@@ -2,7 +2,7 @@ import os
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from sqlalchemy.orm import Session
-from .. import models
+from models import Property, Task, User  # or whatever models you use
 
 REPORT_DIR = os.path.join(os.path.dirname(__file__), "..", "reports")
 os.makedirs(REPORT_DIR, exist_ok=True)
